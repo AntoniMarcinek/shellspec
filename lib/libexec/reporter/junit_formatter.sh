@@ -38,7 +38,13 @@ junit_each() {
     statement)
       if [ "$field_fail" ]; then
         xmlattrs _attrs "message=$field_message"
-        _text="$field_failure_message${LF}# $field_specfile:$field_lineno"
+        _stdout='' _stderr=''
+        [ -r "$field_stdout" ] && readfile _stdout "$field_stdout"
+        [ -r "$field_stderr" ] && readfile _stderr "$field_stderr"
+        _text=''
+        shellspec_join _text "${LF}" "$field_failure_message" \
+          "# $field_specfile:$field_lineno" "[stdout]" "$_stdout" "[stderr]" \
+          "$_stderr"
         xmlcdata _text "$_text"
         junit '=' "${LF}      <failure $_attrs>$_text</failure>"
       else
